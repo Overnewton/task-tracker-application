@@ -5,7 +5,10 @@
 //  Created by Kaelan Just on 22/6/2026.
 //
 
-struct ProgramDate: CustomStringConvertible, Equatable, Comparable {
+import UIKit
+
+///Date Class
+struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
     //automatically makes print statements and string interpolation work
     var description: String {
         "\(self.standardDate().day)/\(self.standardDate().month)/\(self.standardDate().year)"
@@ -122,5 +125,32 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable {
     func calculateCalendar() -> (day: daysOfTheWeek, numberOfWeeks: UInt)? {
         //TODO: Implement
         return nil
+    }
+}
+
+///Color Class
+struct ColourCodable: Codable {
+    //this class exists to allow for storing colours in the file
+    var red: CGFloat
+    var green: CGFloat
+    var blue: CGFloat
+    var alpha: CGFloat
+    
+    func UIColor() -> UIColor {
+        UIKit.UIColor(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.alpha = alpha
+    }
+    
+    init(from color: UIColor) {
+        self.red = color.cgColor.components?[0] ?? 0
+        self.green = color.cgColor.components?[1] ?? 0
+        self.blue = color.cgColor.components?[2] ?? 0
+        self.alpha = color.cgColor.components?[3] ?? 0
     }
 }
