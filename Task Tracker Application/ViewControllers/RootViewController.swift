@@ -11,7 +11,7 @@ class RootViewController: UIViewController {
     
     override func loadView() {
         view = UIView()
-        view.backgroundColor = UIColor(red: 0.075, green: 0.114, blue: 0.137, alpha: 1.0)
+        view.backgroundColor = GlobalState.shared.backgroundColour.UIColor()
         
         NSLayoutConstraint.activate([
             
