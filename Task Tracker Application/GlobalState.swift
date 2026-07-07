@@ -9,9 +9,9 @@ import Foundation
 import UIKit
 
 class GlobalState: Codable {
-
+    
     static let shared = GlobalState.load()
-
+    
     var backgroundColour: ColourCodable
     
     
@@ -20,27 +20,27 @@ class GlobalState: Codable {
     }
     
     private static var fileURL: URL {
-            let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            return dir.appendingPathComponent("global_state.json")
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        return dir.appendingPathComponent("global_state.json")
+    }
+    
+    static func load() -> GlobalState {
+        let url = fileURL
+        
+        if let data = try? Data(contentsOf: url),
+           let state = try? JSONDecoder().decode(GlobalState.self, from: data) {
+            return state
         }
-
-        static func load() -> GlobalState {
-            let url = fileURL
-
-            if let data = try? Data(contentsOf: url),
-               let state = try? JSONDecoder().decode(GlobalState.self, from: data) {
-                return state
-            }
-
-            // Default state if file doesn't exist
-            return GlobalState(backgroundColour: ColourCodable(red: 0.075, green: 0.114, blue: 0.137, alpha: 1.0))
-        }
-
-        func save() {
-            let url = GlobalState.fileURL
-            let data = try? JSONEncoder().encode(self)
-            try? data?.write(to: url)
-        }
+        
+        // Default state if file doesn't exist
+        return GlobalState(backgroundColour: ColourCodable(red: 0.075, green: 0.114, blue: 0.137, alpha: 1.0))
+    }
+    
+    func save() {
+        let url = GlobalState.fileURL
+        let data = try? JSONEncoder().encode(self)
+        try? data?.write(to: url)
+    }
 }
 
 struct ColourCodable: Codable {
