@@ -10,7 +10,7 @@ import UIKit
 
 class GlobalState: Codable {
     //initializes the global state by setting it to a static variable
-    static let shared = GlobalState.load()
+    static private(set) var shared = GlobalState.load()
     
     //MARK: Global Variables
     ///stores the background color
@@ -105,6 +105,18 @@ class GlobalState: Codable {
         
         // Default state if file doesn't exist
         return GlobalState()
+    }
+    
+    static func reload() {
+        GlobalState.shared = load()
+    }
+    
+    ///deletes all saved data
+    static func reset() {
+        //deletes all saved data
+        //used for testing
+        //also for if the user wants to remove their data
+        try? FileManager.default.removeItem(at: fileURL)
     }
     
     ///saves the data to the file
