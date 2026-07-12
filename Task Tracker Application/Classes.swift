@@ -154,3 +154,11 @@ struct ColourCodable: Codable {
         self.alpha = color.cgColor.components?[3] ?? 0
     }
 }
+
+struct Task: Codable {
+    var dueDate: Date
+    var title: String
+    var description: String
+    var colour: ColourCodable
+    var properties: [String]
+}

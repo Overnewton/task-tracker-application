@@ -15,36 +15,43 @@ class GlobalState: Codable {
     //MARK: Global Variables
     ///stores the background color
     var backgroundColour: ColourCodable!
+    var tasks: [Task]!
     
     //MARK: Registry
     //exists so that a specific issue with decoding doesn't delete all stored data when new global varibles are added
     //also so that I don't have to write the same thing 5 or more times to prevent this annoying issue (that is technically working as intended)
     //incredibly jank but hopefully robust enough to not break
-    //needs to remain up to date with the global variables otherwise refuses to compile due to properties not being initialised
+    //needs to remain up to date with the global variables
     ///stores all default values for each of the variables
-    static let registry: [AnyEntry] = [
+    private static let registry: [AnyEntry] = [
         /*
-         Format for the entry ($$ around text indicates to substitute text there:
+         Format for the entry ($$ around text indicates to substitute text there):
          GlobalState.entry(
-             key: .$keyName$,
-             default: $defaultValue$,
-             assign: { state, value in state.$variableName$ = value }
+         key: .$keyName$,
+         default: $defaultValue$,
+         assign: { state, value in state.$variableName$ = value }
          )
          */
         GlobalState.entry(
             key: .backgroundColour,
             default: ColourCodable(red: 0.075, green: 0.114, blue: 0.137, alpha: 1.0),
             assign: { state, value in state.backgroundColour = value }
+        ),
+        GlobalState.entry(
+            key: .tasks,
+            default: [],
+            assign: { state, value in state.tasks = value }
         )
     ]
     
     ///contains list of all variables
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case backgroundColour
+        case tasks
     }
     
     ///used to simplify writing registry entries, very jank
-    static func entry<Value: Codable>(key: CodingKeys, default defaultValue: Value, assign: @escaping (GlobalState, Value) -> Void) -> AnyEntry {
+    private static func entry<Value: Codable>(key: CodingKeys, default defaultValue: Value, assign: @escaping (GlobalState, Value) -> Void) -> AnyEntry {
         AnyEntry(
             //defines how the default values are assigned using properties provided to the function
             applyDefault: { state in
@@ -61,7 +68,7 @@ class GlobalState: Codable {
     }
     
     ///defines registry elements
-    struct AnyEntry {
+    private struct AnyEntry {
         //has to be functions due to limitations with swift
         //and due to me doing some incredibly jank stuff to make implementing variables much simpler
         
@@ -125,5 +132,13 @@ class GlobalState: Codable {
         let data = try? JSONEncoder().encode(self)
         //writes data to file
         try? data?.write(to: GlobalState.fileURL)
+    }
+    
+    //MARK: Global Functions
+    static func switchRoot(to newVC: UIViewController, animation: UIView.AnimationOptions = .transitionCrossDissolve, duration: TimeInterval = 0.4) {
+        guard let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first?.keyWindow else { return }
+        
+        window.rootViewController = newVC
+        UIView.transition(with: window, duration: duration, options: animation, animations: nil, completion: nil)
     }
 }

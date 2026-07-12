@@ -14,14 +14,33 @@ class RootViewController: UIViewController {
         //set background colour to match with the background colour that is stored in the global state
         view.backgroundColor = GlobalState.shared.backgroundColour.UIColor()
         
-        NSLayoutConstraint.activate([
-            
-        ])
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        let buttonAction = UIAction(title: "Next View") { _ in
+            let next = TaskAdding()
+            GlobalState.switchRoot(to: next)
+        }
+        
+        var config = UIButton.Configuration.filled() // Options: .filled(), .tinted(), .gray(), .plain()
+        config.baseBackgroundColor = .systemBlue
+        config.baseForegroundColor = .white
+        config.cornerStyle = .medium
+        
+        let myButton = UIButton(configuration: config, primaryAction: buttonAction)
+        
+        myButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(myButton)
+        
+        NSLayoutConstraint.activate([
+            myButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            myButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            myButton.widthAnchor.constraint(equalToConstant: 200),
+            myButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
     
 }
