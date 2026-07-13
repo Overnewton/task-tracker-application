@@ -25,12 +25,11 @@ class RootViewController: UIViewController {
             GlobalState.switchRoot(to: next)
         }
         
-        var config = UIButton.Configuration.filled() // Options: .filled(), .tinted(), .gray(), .plain()
-        config.baseBackgroundColor = .systemBlue
-        config.baseForegroundColor = .white
-        config.cornerStyle = .medium
         
-        let myButton = UIButton(configuration: config, primaryAction: buttonAction)
+        let myButton = UIButton(type: .system, primaryAction: buttonAction)
+        
+        myButton.backgroundColor = .systemBlue
+        myButton.tintColor = .white
         
         myButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(myButton)

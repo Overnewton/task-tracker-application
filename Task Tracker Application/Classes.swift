@@ -5,13 +5,24 @@
 //  Created by Kaelan Just on 22/6/2026.
 //
 
+import Foundation
 import UIKit
 
 ///Date Class
-struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
+struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Hashable {
     //automatically makes print statements and string interpolation work
     var description: String {
         "\(self.standardDate().day)/\(self.standardDate().month)/\(self.standardDate().year)"
+    }
+    
+    static var today: ProgramDate {
+        let now = Date()
+        let calendar = Calendar.current
+        
+        let day = UInt(calendar.component(.day, from: now))
+        let month = UInt(calendar.component(.month, from: now))
+        let year = UInt(calendar.component(.year, from: now))
+        return ProgramDate(day: day, month: month, year: year)
     }
     
     //orders the dates by their value
@@ -22,14 +33,27 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
     //first storable date corresponds with Sunday Jan 1st 1967
     var daysSinceFirst: UInt
     
+    
+    ///gets if the specific year is a leap year
+    static func isLeap(_ year: UInt) -> Bool {
+        (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0))
+    }
+    
+    
+    //let statements to get month lengths to use in function
+    static let monthLengthsCommon: [UInt] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    static let monthLengthsLeap: [UInt] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    init(daysSinceFirst: UInt) {
+        self.daysSinceFirst = daysSinceFirst
+    }
+    
+    init(month: UInt) {
+        self.daysSinceFirst = ProgramDate(day: 1, month: month % 12 + 1, year: (month / 12) + 1967).daysSinceFirst
+    }
+    
     init(day: UInt, month: UInt, year: UInt) {
-        //let statements to get month lengths to use in function
-        let monthLengthsCommon: [UInt] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        let monthLengthsLeap: [UInt] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        ///gets if the specific year is a leap year
-        func isLeap(_ year: UInt) -> Bool {
-            (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0))
-        }
+        
         //initialises the 'days' variable
         var days: UInt = 0
         
@@ -38,11 +62,11 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
         //loops over each year between the first year and the target year (including the first year but excluding the target year)
         while y < year {
             //increments days variable by the number of days in that year
-            days += isLeap(y) ? 366 : 365
+            days += ProgramDate.isLeap(y) ? 366 : 365
             y += 1
         }
         //sets the list of months
-        let months = isLeap(year) ? monthLengthsLeap : monthLengthsCommon
+        let months = ProgramDate.isLeap(year) ? ProgramDate.monthLengthsLeap : ProgramDate.monthLengthsCommon
         //loops over required months
         for m in 0..<Int(month) {
             //increments days variable by the number of days in that month
@@ -54,13 +78,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
     }
     
     func standardDate() -> (day: UInt, month: UInt, year: UInt) {
-        //let statements to get month lengths to use in function
-        let monthLengthsCommon: [UInt] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        let monthLengthsLeap: [UInt] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        ///gets if the specific year is a leap year
-        func isLeap(_ year: UInt) -> Bool {
-            (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0))
-        }
+        
         //initialises the 'remaining' variable
         var remaining = daysSinceFirst
         
@@ -70,7 +88,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
         //loops until the number of days cannot be subdivided into years
         while true {
             //gets year length
-            let yearLength: UInt = isLeap(year) ? 366 : 365
+            let yearLength: UInt = ProgramDate.isLeap(year) ? 366 : 365
             //checks if the number of days remaining fits into the year length and breaks out of the loop if not
             if remaining < yearLength { break }
             //decrements the number of days remaining by the length of the year and then increments the year
@@ -78,7 +96,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
             year += 1
         }
         //gets the days of each month in the year
-        let months = isLeap(year) ? monthLengthsLeap : monthLengthsCommon
+        let months = ProgramDate.isLeap(year) ? ProgramDate.monthLengthsLeap : ProgramDate.monthLengthsCommon
         var month: UInt = 0
         //loops until the number of days cannot be subdivided into months
         while remaining >= months[Int(month)] {
@@ -90,6 +108,10 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
         let day = remaining
         //returns date in dd/mm/yyyy ordering
         return(day,month,year)
+    }
+    
+    func nextDay() -> ProgramDate {
+        return ProgramDate(daysSinceFirst: self.daysSinceFirst + 1)
     }
     
     enum daysOfTheWeek {
@@ -120,11 +142,6 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable {
                 self = .Sunday
             }
         }
-    }
-    
-    func calculateCalendar() -> (day: daysOfTheWeek, numberOfWeeks: UInt)? {
-        //TODO: Implement
-        return nil
     }
 }
 
