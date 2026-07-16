@@ -122,7 +122,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     
     ///gets if the date is in a specific month
     func isInMonth(_ month: UInt) -> Bool {
-        return self.standardDate().month == month % 12
+        return self.standardDate().month == month % 12 && self.standardDate().year == 1967 + (month / 12)
     }
 }
 

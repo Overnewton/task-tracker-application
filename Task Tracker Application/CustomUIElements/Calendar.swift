@@ -105,6 +105,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     //defines layout of how everything is positioned
     static func makeLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewFlowLayout()
+        //TODO: fix
         layout.itemSize = CGSize(width: 40, height: 40)
         layout.minimumInteritemSpacing = 0
         layout.minimumLineSpacing = 0
