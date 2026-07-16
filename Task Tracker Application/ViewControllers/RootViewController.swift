@@ -12,7 +12,7 @@ class RootViewController: UIViewController {
     override func loadView() {
         view = UIView()
         //set background colour to match with the background colour that is stored in the global state
-        view.backgroundColor = GlobalState.shared.backgroundColour.UIColor()
+        view.backgroundColor = GlobalState.shared.backgroundColour.UIColor
         
     }
     
@@ -20,6 +20,7 @@ class RootViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        //define UI
         let buttonAction = UIAction(title: "Next View") { _ in
             let next = TaskAdding()
             GlobalState.switchRoot(to: next)
@@ -41,5 +42,4 @@ class RootViewController: UIViewController {
             myButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-    
 }

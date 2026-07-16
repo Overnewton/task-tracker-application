@@ -12,13 +12,14 @@ class TaskAdding: UIViewController {
     override func loadView() {
         view = UIView()
         //set background colour to match with the background colour that is stored in the global state
-        view.backgroundColor = GlobalState.shared.backgroundColour.UIColor()
+        view.backgroundColor = GlobalState.shared.backgroundColour.UIColor
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        //define UI
         let backButtonAction = UIAction() { _ in
             
             let alertController = UIAlertController(
@@ -27,14 +28,14 @@ class TaskAdding: UIViewController {
                 preferredStyle: .alert // Use .alert for popups, or .actionSheet for bottom slides
             )
             
-            let deleteAction = UIAlertAction(title: "Leave", style: .destructive) { _ in
+            let leaveAction = UIAlertAction(title: "Leave", style: .destructive) { _ in
                 let next = RootViewController()
                 GlobalState.switchRoot(to: next)
             }
             
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
             
-            alertController.addAction(deleteAction)
+            alertController.addAction(leaveAction)
             alertController.addAction(cancelAction)
             
             self.present(alertController, animated: true, completion: nil)
@@ -82,4 +83,3 @@ class TaskAdding: UIViewController {
         ])
     }
 }
- 

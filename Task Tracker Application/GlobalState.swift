@@ -135,7 +135,9 @@ class GlobalState: Codable {
     }
     
     //MARK: Global Functions
+    ///switches the displayed viewController
     static func switchRoot(to newVC: UIViewController, animation: UIView.AnimationOptions = .transitionCrossDissolve, duration: TimeInterval = 0.4) {
+        //UIKit specific stuff
         guard let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first?.keyWindow else { return }
         
         window.rootViewController = newVC

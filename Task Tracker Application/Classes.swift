@@ -12,16 +12,21 @@ import UIKit
 struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Hashable {
     //automatically makes print statements and string interpolation work
     var description: String {
-        "\(self.standardDate().day)/\(self.standardDate().month)/\(self.standardDate().year)"
+        "\(self.standardDate().day + 1)/\(self.standardDate().month + 1)/\(self.standardDate().year)"
     }
     
+    ///current date
     static var today: ProgramDate {
+        //get current time
         let now = Date()
         let calendar = Calendar.current
         
-        let day = UInt(calendar.component(.day, from: now))
-        let month = UInt(calendar.component(.month, from: now))
+        //convert current time into day/month/year components
+        let day = UInt(calendar.component(.day, from: now)) - 1
+        let month = UInt(calendar.component(.month, from: now)) - 1
         let year = UInt(calendar.component(.year, from: now))
+        
+        //get ProgramDate value corresponding to components
         return ProgramDate(day: day, month: month, year: year)
     }
     
@@ -33,12 +38,10 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     //first storable date corresponds with Sunday Jan 1st 1967
     var daysSinceFirst: UInt
     
-    
     ///gets if the specific year is a leap year
     static func isLeap(_ year: UInt) -> Bool {
         (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0))
     }
-    
     
     //let statements to get month lengths to use in function
     static let monthLengthsCommon: [UInt] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -49,7 +52,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     }
     
     init(month: UInt) {
-        self.daysSinceFirst = ProgramDate(day: 1, month: month % 12 + 1, year: (month / 12) + 1967).daysSinceFirst
+        self.daysSinceFirst = ProgramDate(day: 0, month: month % 12, year: (month / 12) + 1967).daysSinceFirst
     }
     
     init(day: UInt, month: UInt, year: UInt) {
@@ -77,7 +80,9 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
         daysSinceFirst = days
     }
     
+    ///converts date class into day/month/year format
     func standardDate() -> (day: UInt, month: UInt, year: UInt) {
+        //day and month have 0 as their first value
         
         //initialises the 'remaining' variable
         var remaining = daysSinceFirst
@@ -110,53 +115,32 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
         return(day,month,year)
     }
     
+    ///gets the next date
     func nextDay() -> ProgramDate {
         return ProgramDate(daysSinceFirst: self.daysSinceFirst + 1)
     }
     
-    enum daysOfTheWeek {
-        case Monday
-        case Tuesday
-        case Wednesday
-        case Thursday
-        case Friday
-        case Saturday
-        case Sunday
-        init(_ daysSinceSunday: UInt) {
-            switch daysSinceSunday%7 {
-            case 0:
-                self = .Sunday
-            case 1:
-                self = .Monday
-            case 2:
-                self = .Tuesday
-            case 3:
-                self = .Wednesday
-            case 4:
-                self = .Thursday
-            case 5:
-                self = .Friday
-            case 6:
-                self = .Saturday
-            default:
-                self = .Sunday
-            }
-        }
+    ///gets if the date is in a specific month
+    func isInMonth(_ month: UInt) -> Bool {
+        return self.standardDate().month == month % 12
     }
 }
 
 ///Color Class
 struct ColourCodable: Codable {
     //this class exists to allow for storing colours in the file
+    //colour channels
     var red: CGFloat
     var green: CGFloat
     var blue: CGFloat
     var alpha: CGFloat
     
-    func UIColor() -> UIColor {
+    //convert to UIColor
+    var UIColor: UIColor {
         UIKit.UIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
     
+    //init from colour channels
     init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         self.red = red
         self.green = green
@@ -164,6 +148,7 @@ struct ColourCodable: Codable {
         self.alpha = alpha
     }
     
+    //init from UIColor
     init(from color: UIColor) {
         self.red = color.cgColor.components?[0] ?? 0
         self.green = color.cgColor.components?[1] ?? 0
@@ -172,6 +157,7 @@ struct ColourCodable: Codable {
     }
 }
 
+///task class
 struct Task: Codable {
     var dueDate: Date
     var title: String
