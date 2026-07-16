@@ -12,7 +12,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     //internal month value
     //sets the current month as the default display
     //0 corresponds with Jan 1967
-    var displayedMonth: UInt = ProgramDate.today.standardDate().month + 12*ProgramDate.today.standardDate().year {
+    var displayedMonthIndex: UInt = ProgramDate.today.standardDate().month + 12*ProgramDate.today.standardDate().year {
         //reloads the view when the value is updated
         didSet { calendarCellCollectionView.reloadData() }
     }
@@ -26,7 +26,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     //MARK: Interaction and Rendering
     ///dates to display in calendar
     private var calendarDates: [ProgramDate] {
-        generateDates(month: displayedMonth)
+        generateDates(month: displayedMonthIndex)
     }
     ///which date was last clicked, use in UIActions
     private(set) var tappedDate: ProgramDate?
@@ -57,7 +57,6 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     //sets up UI
     private func setup() {
         addSubview(calendarCellCollectionView)
-        calendarCellCollectionView.frame = bounds
         calendarCellCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         //positions where everything is
@@ -97,7 +96,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
         
         //initialises cell object properties
         cell.date = calendarDates[indexPath.item]
-        cell.month = displayedMonth
+        cell.month = displayedMonthIndex
         cell.marked = selectedDates.contains(cell.date)
         cell.configure()
         return cell
@@ -155,10 +154,7 @@ final class UICalendarCell: UICollectionViewCell {
         
         label.textColor = date.isInMonth(month) ? .label : .secondaryLabel
         
-        if isSelected {
-            contentView.backgroundColor = .systemBlue
-            label.textColor = .white
-        } else if marked {
+        if marked {
             contentView.backgroundColor = .systemYellow.withAlphaComponent(0.3)
         } else {
             contentView.backgroundColor = .clear
