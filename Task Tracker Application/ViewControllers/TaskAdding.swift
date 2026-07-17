@@ -65,6 +65,20 @@ class TaskAdding: UIViewController {
         textView.isScrollEnabled = true
         view.addSubview(textView)
         
+        let calendarView = UICalendar()
+        calendarView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let calendarAction = UIAction() {_ in
+            if calendarView.selectedDates.contains(calendarView.tappedDate) {
+                calendarView.selectedDates.remove(calendarView.tappedDate)
+            } else {
+                calendarView.selectedDates.insert(calendarView.tappedDate)
+            }
+        }
+        
+        calendarView.addAction(calendarAction, for: .primaryActionTriggered)
+        view.addSubview(calendarView)
+        
         NSLayoutConstraint.activate([
             backButton.widthAnchor.constraint(equalToConstant: 50),
             backButton.heightAnchor.constraint(equalToConstant: 50),
@@ -79,7 +93,12 @@ class TaskAdding: UIViewController {
             textView.topAnchor.constraint(equalTo: taskTitleInput.bottomAnchor, constant: 20),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            textView.heightAnchor.constraint(equalToConstant: 200)
+            textView.heightAnchor.constraint(equalToConstant: 200),
+            
+            calendarView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 20),
+            calendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            calendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            calendarView.heightAnchor.constraint(equalTo: calendarView.widthAnchor, multiplier: 0.7),
         ])
     }
 }

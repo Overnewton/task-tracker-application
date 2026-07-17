@@ -29,7 +29,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
         generateDates(month: displayedMonthIndex)
     }
     ///which date was last clicked, use in UIActions
-    private(set) var tappedDate: ProgramDate?
+    private(set) var tappedDate: ProgramDate = ProgramDate.today
     
     ///update tapped date and send action when date is clicked
     private func didTap(date: ProgramDate) {
@@ -104,12 +104,20 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     
     //defines layout of how everything is positioned
     static func makeLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewFlowLayout()
-        //TODO: fix
-        layout.itemSize = CGSize(width: 40, height: 40)
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
-        return layout
+        
+        //define size of cells
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0 / 7.0), heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        //define height of rows
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0 / 6.0))
+        
+        //define layout of cells
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: Array(repeating: item, count: 7))
+        let section = NSCollectionLayoutSection(group: group)
+        
+        //return layout of cells
+        return UICollectionViewCompositionalLayout(section: section)
     }
     
     //gets collection of dates to be displayed
