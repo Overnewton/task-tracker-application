@@ -23,6 +23,18 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
         didSet { calendarCellCollectionView.reloadData() }
     }
     
+    var textColor: UIColor = .label {
+        didSet { calendarCellCollectionView.reloadData() }
+    }
+    
+    var secondaryTextColor: UIColor = .secondaryLabel {
+        didSet { calendarCellCollectionView.reloadData() }
+    }
+    
+    var highlightColor: UIColor = .systemYellow.withAlphaComponent(0.3) {
+        didSet { calendarCellCollectionView.reloadData() }
+    }
+    
     //MARK: Interaction and Rendering
     ///dates to display in calendar
     private var calendarDates: [ProgramDate] {
@@ -58,6 +70,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     private func setup() {
         addSubview(calendarCellCollectionView)
         calendarCellCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        calendarCellCollectionView.backgroundColor = backgroundColor
         
         //positions where everything is
         NSLayoutConstraint.activate([
@@ -98,6 +111,9 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
         cell.date = calendarDates[indexPath.item]
         cell.month = displayedMonthIndex
         cell.marked = selectedDates.contains(cell.date)
+        cell.labelColor = textColor
+        cell.secondaryLabelColor = secondaryTextColor
+        cell.highlightColor = highlightColor
         cell.configure()
         return cell
     }
@@ -144,6 +160,11 @@ final class UICalendarCell: UICollectionViewCell {
     var month: UInt = 0
     var marked: Bool = false
     
+    //colours
+    var labelColor: UIColor = .label
+    var secondaryLabelColor: UIColor = .secondaryLabel
+    var highlightColor: UIColor = .systemYellow.withAlphaComponent(0.3)
+    
     //init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -151,7 +172,6 @@ final class UICalendarCell: UICollectionViewCell {
         label.textAlignment = .center
         label.frame = contentView.bounds
         label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        contentView.layer.cornerRadius = 8
     }
     
     required init?(coder: NSCoder) { fatalError() }
@@ -161,10 +181,10 @@ final class UICalendarCell: UICollectionViewCell {
     {
         label.text = "\(date.standardDate().day + 1)"
         
-        label.textColor = date.isInMonth(month) ? .label : .secondaryLabel
+        label.textColor = date.isInMonth(month) ? labelColor : secondaryLabelColor
         
         if marked {
-            contentView.backgroundColor = .systemYellow.withAlphaComponent(0.3)
+            contentView.backgroundColor = highlightColor
         } else {
             contentView.backgroundColor = .clear
         }

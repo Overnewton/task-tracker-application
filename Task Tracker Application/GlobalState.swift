@@ -15,6 +15,10 @@ class GlobalState: Codable {
     //MARK: Global Variables
     ///stores the background color
     var backgroundColour: ColourCodable!
+    var foregroundColour: ColourCodable!
+    var textColour: ColourCodable!
+    var placeholderTextColour: ColourCodable!
+    var iconColour: ColourCodable!
     var tasks: [Task]!
     
     //MARK: Registry
@@ -34,8 +38,28 @@ class GlobalState: Codable {
          */
         GlobalState.entry(
             key: .backgroundColour,
-            default: ColourCodable(red: 0.075, green: 0.114, blue: 0.137, alpha: 1.0),
+            default: ColourCodable(red: 0.10, green: 0.10, blue: 0.12, alpha: 1.00),
             assign: { state, value in state.backgroundColour = value }
+        ),
+        GlobalState.entry(
+            key: .foregroundColour,
+            default: ColourCodable(red: 0.13, green: 0.13, blue: 0.15, alpha: 1.00),
+            assign: { state, value in state.foregroundColour = value }
+        ),
+        GlobalState.entry(
+            key: .textColour,
+            default: ColourCodable(red: 0.98, green: 0.98, blue: 0.98, alpha: 1.00),
+            assign: { state, value in state.textColour = value }
+        ),
+        GlobalState.entry(
+            key: .placeholderTextColour,
+            default: ColourCodable(red: 0.42, green: 0.43, blue: 0.46, alpha: 1.00),
+            assign: { state, value in state.placeholderTextColour = value }
+        ),
+        GlobalState.entry(
+            key: .iconColour,
+            default: ColourCodable(red: 0.59, green: 0.59, blue: 0.62, alpha: 1.00),
+            assign: { state, value in state.iconColour = value }
         ),
         GlobalState.entry(
             key: .tasks,
@@ -47,6 +71,10 @@ class GlobalState: Codable {
     ///contains list of all variables
     private enum CodingKeys: String, CodingKey {
         case backgroundColour
+        case foregroundColour
+        case textColour
+        case iconColour
+        case placeholderTextColour
         case tasks
     }
     

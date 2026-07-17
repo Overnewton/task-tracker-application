@@ -42,42 +42,58 @@ class TaskAdding: UIViewController {
         }
         
         let backButton = UIButton(type: .system, primaryAction: backButtonAction)
+        backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.setTitle("←", for: .normal)
-        backButton.backgroundColor = .systemBlue
-        backButton.tintColor = .white
+        backButton.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        backButton.tintColor = GlobalState.shared.iconColour.UIColor
         backButton.layer.cornerRadius = 25
         backButton.clipsToBounds = true
-        backButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(backButton)
         
         let taskTitleInput = UITextField()
-        taskTitleInput.placeholder = "\(ProgramDate.today)"
-        taskTitleInput.borderStyle = .roundedRect
         taskTitleInput.translatesAutoresizingMaskIntoConstraints = false
+        taskTitleInput.attributedPlaceholder = NSAttributedString(string: "Task Title", attributes: [.foregroundColor: GlobalState.shared.placeholderTextColour.UIColor])
+        taskTitleInput.borderStyle = .roundedRect
+        taskTitleInput.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        taskTitleInput.textColor = GlobalState.shared.textColour.UIColor
         view.addSubview(taskTitleInput)
         
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.font = UIFont.systemFont(ofSize: 16)
+        textView.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        textView.textColor = GlobalState.shared.textColour.UIColor
         textView.layer.borderWidth = 1
         textView.layer.borderColor = UIColor.lightGray.cgColor
         textView.layer.cornerRadius = 8
         textView.isScrollEnabled = true
         view.addSubview(textView)
         
-        let calendarView = UICalendar()
-        calendarView.translatesAutoresizingMaskIntoConstraints = false
+        //TODO: Center text, add border to everything
         
-        let calendarAction = UIAction() {_ in
-            if calendarView.selectedDates.contains(calendarView.tappedDate) {
-                calendarView.selectedDates.remove(calendarView.tappedDate)
-            } else {
-                calendarView.selectedDates.insert(calendarView.tappedDate)
-            }
+        let calendarView = UICalendar()
+        let selectedDateLabel = UITextView()
+        calendarView.translatesAutoresizingMaskIntoConstraints = false
+        selectedDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        let calendarAction = UIAction() { _ in
+            calendarView.selectedDates.removeAll()
+            calendarView.selectedDates.insert(calendarView.tappedDate)
+            selectedDateLabel.text = "\(calendarView.tappedDate)"
         }
         
+        calendarView.selectedDates = [ProgramDate.today]
+        calendarView.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        calendarView.textColor = GlobalState.shared.textColour.UIColor
+        calendarView.secondaryTextColor = GlobalState.shared.placeholderTextColour.UIColor
         calendarView.addAction(calendarAction, for: .primaryActionTriggered)
         view.addSubview(calendarView)
+        
+        selectedDateLabel.text = "\(ProgramDate.today)"
+        selectedDateLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        selectedDateLabel.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        selectedDateLabel.textColor = GlobalState.shared.textColour.UIColor
+        view.addSubview(selectedDateLabel)
         
         NSLayoutConstraint.activate([
             backButton.widthAnchor.constraint(equalToConstant: 50),
@@ -93,12 +109,17 @@ class TaskAdding: UIViewController {
             textView.topAnchor.constraint(equalTo: taskTitleInput.bottomAnchor, constant: 20),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            textView.heightAnchor.constraint(equalToConstant: 200),
+            textView.heightAnchor.constraint(equalToConstant: 400),
             
             calendarView.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 20),
             calendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            calendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            calendarView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.4),
             calendarView.heightAnchor.constraint(equalTo: calendarView.widthAnchor, multiplier: 0.7),
+            
+            selectedDateLabel.topAnchor.constraint(equalTo: calendarView.bottomAnchor),
+            selectedDateLabel.leadingAnchor.constraint(equalTo: calendarView.leadingAnchor),
+            selectedDateLabel.trailingAnchor.constraint(equalTo: calendarView.trailingAnchor),
+            selectedDateLabel.heightAnchor.constraint(equalToConstant: 40),
         ])
     }
 }

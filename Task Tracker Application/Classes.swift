@@ -52,7 +52,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     }
     
     init(month: UInt) {
-        self.daysSinceFirst = ProgramDate(day: 0, month: month % 12, year: (month / 12) + 1967).daysSinceFirst
+        self.daysSinceFirst = ProgramDate(day: 0, month: month % 12, year: (month / 12)).daysSinceFirst
     }
     
     init(day: UInt, month: UInt, year: UInt) {
@@ -122,7 +122,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     
     ///gets if the date is in a specific month
     func isInMonth(_ month: UInt) -> Bool {
-        return self.standardDate().month == month % 12 && self.standardDate().year == 1967 + (month / 12)
+        return self.standardDate().month == month % 12 && self.standardDate().year == (month / 12)
     }
 }
 
