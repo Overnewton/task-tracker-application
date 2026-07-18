@@ -19,6 +19,7 @@ class GlobalState: Codable {
     var textColour: ColourCodable!
     var placeholderTextColour: ColourCodable!
     var iconColour: ColourCodable!
+    var borderColour: ColourCodable!
     var tasks: [Task]!
     
     //MARK: Registry
@@ -62,6 +63,11 @@ class GlobalState: Codable {
             assign: { state, value in state.iconColour = value }
         ),
         GlobalState.entry(
+            key: .borderColour,
+            default: ColourCodable(red: 0.20, green: 0.20, blue: 0.22, alpha: 1.00),
+            assign: { state, value in state.borderColour = value }
+        ),
+        GlobalState.entry(
             key: .tasks,
             default: [],
             assign: { state, value in state.tasks = value }
@@ -73,8 +79,9 @@ class GlobalState: Codable {
         case backgroundColour
         case foregroundColour
         case textColour
-        case iconColour
         case placeholderTextColour
+        case iconColour
+        case borderColour
         case tasks
     }
     

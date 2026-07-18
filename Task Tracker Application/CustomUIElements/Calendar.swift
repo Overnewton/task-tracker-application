@@ -50,10 +50,7 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     }
     
     //define subview for calendar cells
-    private let calendarCellCollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: UICalendar.makeLayout()
-    )
+    private let calendarCellCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICalendar.makeLayout())
     
     //MARK: Init
     override init(frame: CGRect) {
@@ -177,8 +174,7 @@ final class UICalendarCell: UICollectionViewCell {
     required init?(coder: NSCoder) { fatalError() }
     
     //configure label from provided inputs
-    func configure()
-    {
+    func configure() {
         label.text = "\(date.standardDate().day + 1)"
         
         label.textColor = date.isInMonth(month) ? labelColor : secondaryLabelColor
