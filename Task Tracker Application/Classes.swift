@@ -15,6 +15,14 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
         "\(self.standardDate().day + 1)/\(self.standardDate().month + 1)/\(self.standardDate().year)"
     }
     
+    ///converts value into the number of months since initial time
+    var months: UInt {
+        //0 corresponds with Jan 1967
+        self.standardDate().month + 12*(self.standardDate().year-1967)
+    }
+    
+    static let monthNames: [String] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    
     ///current date
     static var today: ProgramDate {
         //get current time
@@ -52,7 +60,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     }
     
     init(month: UInt) {
-        self.daysSinceFirst = ProgramDate(day: 0, month: month % 12, year: (month / 12)).daysSinceFirst
+        self.daysSinceFirst = ProgramDate(day: 0, month: month % 12, year: (month / 12) + 1967).daysSinceFirst
     }
     
     init(day: UInt, month: UInt, year: UInt) {
@@ -122,12 +130,12 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     
     ///gets if the date is in a specific month
     func isInMonth(_ month: UInt) -> Bool {
-        return self.standardDate().month == month % 12 && self.standardDate().year == (month / 12)
+        return self.standardDate().month == month % 12 && self.standardDate().year == (month / 12) + 1967
     }
 }
 
 ///Color Class
-struct ColourCodable: Codable {
+struct ColourCodable: Codable, Hashable {
     //this class exists to allow for storing colours in the file
     //colour channels
     var red: CGFloat
@@ -158,7 +166,7 @@ struct ColourCodable: Codable {
 }
 
 ///task class
-struct Task: Codable {
+struct Task: Codable, Hashable {
     var dueDate: Date
     var title: String
     var description: String

@@ -9,10 +9,11 @@ import UIKit
 
 ///UICalendar Class
 final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewDelegate {
+    
     //internal month value
     //sets the current month as the default display
     //0 corresponds with Jan 1967
-    var displayedMonthIndex: UInt = ProgramDate.today.standardDate().month + 12*ProgramDate.today.standardDate().year {
+    var displayedMonthIndex: UInt = ProgramDate.today.months {
         //reloads the view when the value is updated
         didSet { calendarCellCollectionView.reloadData() }
     }

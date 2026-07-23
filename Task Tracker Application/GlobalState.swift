@@ -20,7 +20,8 @@ class GlobalState: Codable {
     var placeholderTextColour: ColourCodable!
     var iconColour: ColourCodable!
     var borderColour: ColourCodable!
-    var tasks: [Task]!
+    var highlightColour: ColourCodable!
+    var tasks: Set<Task>!
     
     //MARK: Registry
     //exists so that a specific issue with decoding doesn't delete all stored data when new global varibles are added
@@ -68,6 +69,11 @@ class GlobalState: Codable {
             assign: { state, value in state.borderColour = value }
         ),
         GlobalState.entry(
+            key: .highlightColour,
+            default: ColourCodable(from: .systemYellow.withAlphaComponent(0.5)),
+            assign: { state, value in state.highlightColour = value }
+        ),
+        GlobalState.entry(
             key: .tasks,
             default: [],
             assign: { state, value in state.tasks = value }
@@ -82,6 +88,7 @@ class GlobalState: Codable {
         case placeholderTextColour
         case iconColour
         case borderColour
+        case highlightColour
         case tasks
     }
     
