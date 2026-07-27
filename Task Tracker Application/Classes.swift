@@ -10,6 +10,7 @@ import UIKit
 
 ///Date Class
 struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Hashable {
+    //ProgramDate class is implemented because the default date class uses exact times instead of the day/month/year.
     //automatically makes print statements and string interpolation work
     var description: String {
         "\(self.standardDate().day + 1)/\(self.standardDate().month + 1)/\(self.standardDate().year)"
@@ -158,18 +159,30 @@ struct ColourCodable: Codable, Hashable {
     
     //init from UIColor
     init(from color: UIColor) {
-        self.red = color.cgColor.components?[0] ?? 0
-        self.green = color.cgColor.components?[1] ?? 0
-        self.blue = color.cgColor.components?[2] ?? 0
-        self.alpha = color.cgColor.components?[3] ?? 0
+        //There was a crash with previous implementation
+        //Swapped to getRed(_, green: _, blue: _, alpha: _) implemetation
+        self.red = 0
+        self.green = 0
+        self.blue = 0
+        self.alpha = 0
+        //Uses pointer to value to allow for the function to mutate the variables
+        color.getRed(&self.red, green: &self.green, blue: &self.blue, alpha: &self.alpha)
     }
 }
 
 ///task class
 struct Task: Codable, Hashable {
-    var dueDate: Date
+    var dueDate: ProgramDate
     var title: String
     var description: String
     var colour: ColourCodable
     var properties: [String]
+    //init with default values
+    init(dueDate: ProgramDate = ProgramDate.today, title: String = "", description: String = "", colour: ColourCodable = ColourCodable(from: .black), properties: [String] = []) {
+        self.dueDate = dueDate
+        self.title = title
+        self.description = description
+        self.colour = colour
+        self.properties = properties
+    }
 }

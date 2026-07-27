@@ -9,6 +9,10 @@ import UIKit
 
 class TaskAdding: UIViewController {
     
+    var initialTask: Task = Task() {
+        didSet { reload() }
+    }
+    
     override func loadView() {
         view = UIView()
         //set background colour to match with the background colour that is stored in the global state
@@ -18,6 +22,13 @@ class TaskAdding: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        reload()
+    }
+    
+    func reload() {
+        //remove all subviews
+        view.subviews.forEach { $0.removeFromSuperview() }
         
         //UI Elements
         let backButtonAction = UIAction() { _ in
@@ -53,6 +64,7 @@ class TaskAdding: UIViewController {
         let txtTaskTitleInput = UITextField()
         txtTaskTitleInput.translatesAutoresizingMaskIntoConstraints = false
         txtTaskTitleInput.attributedPlaceholder = NSAttributedString(string: "Task Title", attributes: [.foregroundColor: GlobalState.shared.placeholderTextColour.UIColor])
+        txtTaskTitleInput.text = initialTask.title
         txtTaskTitleInput.backgroundColor = GlobalState.shared.foregroundColour.UIColor
         txtTaskTitleInput.textColor = GlobalState.shared.textColour.UIColor
         txtTaskTitleInput.layer.borderWidth = 1
@@ -110,7 +122,7 @@ class TaskAdding: UIViewController {
             lblUpperCalendarMonthName.text = "\(ProgramDate.monthNames[Int(calCalendarView.displayedMonthIndex % 12)])"
         }
         
-        calCalendarView.selectedDates = [ProgramDate.today]
+        calCalendarView.selectedDates = [initialTask.dueDate]
         calCalendarView.backgroundColor = GlobalState.shared.foregroundColour.UIColor
         calCalendarView.textColor = GlobalState.shared.textColour.UIColor
         calCalendarView.secondaryTextColor = GlobalState.shared.placeholderTextColour.UIColor
@@ -118,7 +130,7 @@ class TaskAdding: UIViewController {
         calCalendarView.addAction(calendarAction, for: .primaryActionTriggered)
         boxCalendar.addSubview(calCalendarView)
         
-        lblSelectedDate.text = "\(ProgramDate.today)"
+        lblSelectedDate.text = "\(initialTask.dueDate)"
         lblSelectedDate.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         lblSelectedDate.textAlignment = .center
         lblSelectedDate.backgroundColor = GlobalState.shared.foregroundColour.UIColor
@@ -153,6 +165,12 @@ class TaskAdding: UIViewController {
         
         view.addSubview(boxCalendar)
         
+        let prpPropertiesView = UIProperties()
+        prpPropertiesView.translatesAutoresizingMaskIntoConstraints = false
+        prpPropertiesView.properties = initialTask.properties
+        prpPropertiesView.iconColor = GlobalState.shared.iconColour.UIColor
+        view.addSubview(prpPropertiesView)
+        
         //UI Layout
         NSLayoutConstraint.activate([
             btnBack.widthAnchor.constraint(equalToConstant: 50),
@@ -168,7 +186,7 @@ class TaskAdding: UIViewController {
             txtTextView.topAnchor.constraint(equalTo: txtTaskTitleInput.bottomAnchor, constant: 20),
             txtTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             txtTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            txtTextView.heightAnchor.constraint(equalToConstant: 400),
+            txtTextView.heightAnchor.constraint(equalToConstant: 200),
             
             boxCalendar.topAnchor.constraint(equalTo: txtTextView.bottomAnchor, constant: 20),
             boxCalendar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -201,7 +219,12 @@ class TaskAdding: UIViewController {
             lblSelectedDate.trailingAnchor.constraint(equalTo: boxCalendar.trailingAnchor),
             lblSelectedDate.heightAnchor.constraint(equalToConstant: 35),
             
-            boxCalendar.bottomAnchor.constraint(equalTo: lblSelectedDate.bottomAnchor)
+            boxCalendar.bottomAnchor.constraint(equalTo: lblSelectedDate.bottomAnchor),
+            
+            prpPropertiesView.leadingAnchor.constraint(equalTo: boxCalendar.trailingAnchor, constant: 20),
+            prpPropertiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            prpPropertiesView.topAnchor.constraint(equalTo: txtTextView.bottomAnchor, constant: 20),
+            prpPropertiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
         ])
     }
 }
