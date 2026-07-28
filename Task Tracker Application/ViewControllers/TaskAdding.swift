@@ -169,6 +169,12 @@ class TaskAdding: UIViewController {
         prpPropertiesView.translatesAutoresizingMaskIntoConstraints = false
         prpPropertiesView.properties = initialTask.properties
         prpPropertiesView.iconColor = GlobalState.shared.iconColour.UIColor
+        prpPropertiesView.cellBackgroundColor = GlobalState.shared.foregroundColour.UIColor
+        prpPropertiesView.cellBorderColor = GlobalState.shared.borderColour.UIColor
+        prpPropertiesView.cellBorderWidth = 1
+        prpPropertiesView.cellCornerRadius = 10
+        prpPropertiesView.textColor = GlobalState.shared.textColour.UIColor
+        prpPropertiesView.secondaryTextColor = GlobalState.shared.placeholderTextColour.UIColor
         view.addSubview(prpPropertiesView)
         
         //UI Layout
