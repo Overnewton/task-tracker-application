@@ -7,40 +7,49 @@
 
 import UIKit
 
-final class UIProperties: UIView, UICollectionViewDataSource, UICollectionViewDelegate {
+final class UIProperties: UIControl, UICollectionViewDataSource, UICollectionViewDelegate {
     
+    //list of properties, hence an array as the ordering is the displayed ordering
     var properties: [String] = [] {
         didSet { reload() }
     }
     
+    //color
     var textColor: UIColor = .label {
         didSet { reload() }
     }
     
+    //color
     var secondaryTextColor: UIColor = .secondaryLabel {
         didSet { reload() }
     }
     
+    //color
     var iconColor: UIColor = .white {
         didSet { reload() }
     }
     
+    //color
     var cellBorderColor: UIColor = .systemBackground {
         didSet { reload() }
     }
     
+    //color
     var cellBackgroundColor: UIColor = .systemBackground {
         didSet { reload() }
     }
     
+    //color
     var cellCornerRadius: CGFloat = 0 {
         didSet { reload() }
     }
     
+    //color
     var cellBorderWidth: CGFloat = 0 {
         didSet { reload() }
     }
     
+    //reloads the display after removing all blank entries
     func reload() {
         let propertiesFiltered = properties.filter({ $0 != "" })
         //this check is important as otherwise there WILL be an infinite loop
@@ -50,6 +59,7 @@ final class UIProperties: UIView, UICollectionViewDataSource, UICollectionViewDe
         propertyCellCollectionView.reloadData()
     }
     
+    //internal collection view
     private var propertyCellCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UIProperties.makeLayout(horizontalSpacing: 10, verticalSpacing: 10))
     
     
@@ -86,21 +96,39 @@ final class UIProperties: UIView, UICollectionViewDataSource, UICollectionViewDe
         propertyCellCollectionView.delegate = self
     }
     
+    //CollectionView functions
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         properties.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        //initialises the cells
         if indexPath.item == properties.count {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UIPropertiesAddCell.reuseID, for: indexPath) as! UIPropertiesAddCell
-            let editAction = UIAction() { _ in
-                self.properties.append(cell.inputTextField.text ?? "")
+            //action to run on finishing editing
+            let editAction = UIAction() { [weak self] _ in
+                self?.properties.append(cell.inputTextField.text ?? "")
+                self?.sendActions(for: .primaryActionTriggered)
             }
-            let editingAction = UIAction() { _ in
-                self.propertyCellCollectionView.collectionViewLayout.invalidateLayout()
+            //changes size of cells to match size of contents
+            let editingAction = UIAction() { [weak self] _ in
+                cell.inputTextField.invalidateIntrinsicContentSize()
+                cell.setNeedsLayout()
+                cell.layoutIfNeeded()
+                self?.propertyCellCollectionView.collectionViewLayout.invalidateLayout()
             }
+            //displays the placeholder text when not editing
+            let leftViewControlAction = UIAction() { [weak self] _ in
+                cell.inputTextField.leftViewMode = .never
+                cell.inputTextField.invalidateIntrinsicContentSize()
+                cell.setNeedsLayout()
+                cell.layoutIfNeeded()
+                self?.propertyCellCollectionView.collectionViewLayout.invalidateLayout()
+            }
+            //set up cell
             cell.editAction = editAction
             cell.editingAction = editingAction
+            cell.leftViewControlAction = leftViewControlAction
             cell.iconColor = iconColor
             cell.textColor = textColor
             cell.backgroundColor = cellBackgroundColor
@@ -112,21 +140,33 @@ final class UIProperties: UIView, UICollectionViewDataSource, UICollectionViewDe
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UIPropertiesCell.reuseID, for: indexPath) as! UIPropertiesCell
-            let deleteAction = UIAction() { _ in
-                for propertyCell in self.propertyCellCollectionView.visibleCells {
+            //action to delete the property
+            let deleteAction = UIAction() { [weak self] _ in
+                for propertyCell in self?.propertyCellCollectionView.visibleCells ?? [] {
                     if let c = propertyCell as? UIPropertiesCell {
                         c.inputTextField.removeTarget(nil, action: nil, for: .editingDidEnd)
                     }
                 }
-                self.properties.remove(at: indexPath.item)
+                self?.properties.remove(at: indexPath.item)
+                self?.sendActions(for: .primaryActionTriggered)
             }
             cell.deleteAction = deleteAction
-            let editAction = UIAction() { _ in
-                self.properties[indexPath.item] = cell.inputTextField.text ?? ""
+            //action to run on finishing editing
+            let editAction = UIAction() { [weak self] _ in
+                cell.inputTextField.invalidateIntrinsicContentSize()
+                cell.setNeedsLayout()
+                cell.layoutIfNeeded()
+                self?.properties[indexPath.item] = cell.inputTextField.text ?? ""
+                self?.sendActions(for: .primaryActionTriggered)
             }
-            let editingAction = UIAction() { _ in
-                self.propertyCellCollectionView.collectionViewLayout.invalidateLayout()
+            //changes size of cells to match size of contents
+            let editingAction = UIAction() { [weak self] _ in
+                cell.inputTextField.invalidateIntrinsicContentSize()
+                cell.setNeedsLayout()
+                cell.layoutIfNeeded()
+                self?.propertyCellCollectionView.collectionViewLayout.invalidateLayout()
             }
+            //set up cell
             cell.editAction = editAction
             cell.editingAction = editingAction
             cell.property = properties[indexPath.item]
@@ -153,6 +193,7 @@ final class UIProperties: UIView, UICollectionViewDataSource, UICollectionViewDe
 final class UIPropertiesCell: UICollectionViewCell, UITextFieldDelegate {
     static let reuseID = "UIPropertiesCell"
     
+    //basically just ui stuff
     var property: String = ""
     var deleteAction = UIAction { _ in }
     var editAction = UIAction { _ in }
@@ -193,6 +234,8 @@ final class UIPropertiesCell: UICollectionViewCell, UITextFieldDelegate {
         inputTextField.addAction(editAction, for: .editingDidEnd)
         inputTextField.removeTarget(nil, action: nil, for: .editingChanged)
         inputTextField.addAction(editingAction, for: .editingChanged)
+        inputTextField.removeTarget(nil, action: nil, for: .editingDidEndOnExit)
+        inputTextField.addAction(UIAction() { _ in }, for: .editingDidEndOnExit)
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersInRanges range: [NSValue], replacementString string: String) -> Bool {
@@ -202,18 +245,15 @@ final class UIPropertiesCell: UICollectionViewCell, UITextFieldDelegate {
         }
         return true
     }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return false
-    }
 }
 
 final class UIPropertiesAddCell: UICollectionViewCell, UITextFieldDelegate {
     static let reuseID = "UIPropertiesAddCell"
     
+    //basically just ui stuff
     var editAction = UIAction { _ in }
     var editingAction = UIAction { _ in }
+    var leftViewControlAction = UIAction { _ in }
     var textColor: UIColor = .label
     var secondaryTextColor: UIColor = .secondaryLabel
     var iconColor: UIColor = .white
@@ -242,12 +282,16 @@ final class UIPropertiesAddCell: UICollectionViewCell, UITextFieldDelegate {
         label.textColor = secondaryTextColor
         label.text = "add tags"
         inputTextField.leftView = label
-        inputTextField.leftViewMode = .unlessEditing
+        inputTextField.leftViewMode = .always
         inputTextField.textColor = textColor
         inputTextField.removeTarget(nil, action: nil, for: .editingDidEnd)
         inputTextField.addAction(editAction, for: .editingDidEnd)
         inputTextField.removeTarget(nil, action: nil, for: .editingChanged)
         inputTextField.addAction(editingAction, for: .editingChanged)
+        inputTextField.removeTarget(nil, action: nil, for: .editingDidBegin)
+        inputTextField.addAction(leftViewControlAction, for: .editingDidBegin)
+        inputTextField.removeTarget(nil, action: nil, for: .editingDidEndOnExit)
+        inputTextField.addAction(UIAction() { _ in }, for: .editingDidEndOnExit)
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersInRanges range: [NSValue], replacementString string: String) -> Bool {
@@ -256,10 +300,5 @@ final class UIPropertiesAddCell: UICollectionViewCell, UITextFieldDelegate {
             return false
         }
         return true
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return false
     }
 }

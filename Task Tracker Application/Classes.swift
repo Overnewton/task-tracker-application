@@ -22,6 +22,8 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
         self.standardDate().month + 12*(self.standardDate().year-1967)
     }
     
+    //used for the calendar
+    ///list of month names
     static let monthNames: [String] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
     ///current date
@@ -45,6 +47,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     }
     
     //first storable date corresponds with Sunday Jan 1st 1967
+    //uses an unsigned integer as it stores a number of days since a specific date
     var daysSinceFirst: UInt
     
     ///gets if the specific year is a leap year
@@ -56,6 +59,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
     static let monthLengthsCommon: [UInt] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     static let monthLengthsLeap: [UInt] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     
+    //MARK: Init
     init(daysSinceFirst: UInt) {
         self.daysSinceFirst = daysSinceFirst
     }
@@ -138,6 +142,7 @@ struct ProgramDate: CustomStringConvertible, Equatable, Comparable, Codable, Has
 ///Color Class
 struct ColourCodable: Codable, Hashable {
     //this class exists to allow for storing colours in the file
+    //variables are CGFloats as that is what UIColor uses
     //colour channels
     var red: CGFloat
     var green: CGFloat
@@ -171,18 +176,21 @@ struct ColourCodable: Codable, Hashable {
 }
 
 ///task class
-struct Task: Codable, Hashable {
+struct ProgramTask: Codable, Hashable {
+    //stores a date, so uses
     var dueDate: ProgramDate
+    //stores the title of the task which is text, therefore String
     var title: String
+    //stores the description of the task which is text, therefore String
     var description: String
-    var colour: ColourCodable
+    //stores a list of the properties of the task, and every property is text, therefore Array<String>
     var properties: [String]
+    
     //init with default values
-    init(dueDate: ProgramDate = ProgramDate.today, title: String = "", description: String = "", colour: ColourCodable = ColourCodable(from: .black), properties: [String] = []) {
+    init(dueDate: ProgramDate = ProgramDate.today, title: String = "", description: String = "", properties: [String] = []) {
         self.dueDate = dueDate
         self.title = title
         self.description = description
-        self.colour = colour
         self.properties = properties
     }
 }

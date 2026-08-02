@@ -13,17 +13,20 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     //internal month value
     //sets the current month as the default display
     //0 corresponds with Jan 1967
+    //unsigned integer because the value is counting the number of month since the first month
     var displayedMonthIndex: UInt = ProgramDate.today.months {
         //reloads the view when the value is updated
         didSet { calendarCellCollectionView.reloadData() }
     }
     
+    //value is a set as the ordering doesn't matter
     ///Set of selected dates
     var selectedDates: Set<ProgramDate> = [] {
         //reloads the view when the value is updated
         didSet { calendarCellCollectionView.reloadData() }
     }
     
+    //rendering stuff
     var textColor: UIColor = .label {
         didSet { calendarCellCollectionView.reloadData() }
     }
@@ -37,10 +40,12 @@ final class UICalendar: UIControl, UICollectionViewDataSource, UICollectionViewD
     }
     
     //MARK: Interaction and Rendering
+    //array as the ordering does matter (it gives the sequence of the dates to store in the calendar)
     ///dates to display in calendar
     private var calendarDates: [ProgramDate] {
         generateDates(month: displayedMonthIndex)
     }
+    
     ///which date was last clicked, use in UIActions
     private(set) var tappedDate: ProgramDate = ProgramDate.today
     
@@ -153,6 +158,7 @@ final class UICalendarCell: UICollectionViewCell {
     static let reuseID = "UICalendarCell"
     
     //variables
+    //basically just UI stuff
     private let label = UILabel()
     var date: ProgramDate = ProgramDate.today
     var month: UInt = 0

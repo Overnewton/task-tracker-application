@@ -19,4 +19,8 @@ class Settings: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
+    
+    //TODO: Implement
+    //This is where the code for changing the colours will be
+    //Currently unimplemented due to time constraints
 }

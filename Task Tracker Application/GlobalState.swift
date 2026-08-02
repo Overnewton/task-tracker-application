@@ -13,15 +13,25 @@ class GlobalState: Codable {
     static private(set) var shared = GlobalState.load()
     
     //MARK: Global Variables
+    //ColourCodable variables store colours
     ///stores the background color
     var backgroundColour: ColourCodable!
+    ///stores the foreground color
     var foregroundColour: ColourCodable!
+    ///stores the text color
     var textColour: ColourCodable!
+    ///stores the placeholder text color
     var placeholderTextColour: ColourCodable!
+    ///stores the icon color
     var iconColour: ColourCodable!
+    ///stores the border color
     var borderColour: ColourCodable!
+    ///stores the highlight color
     var highlightColour: ColourCodable!
-    var tasks: Set<Task>!
+    
+    //tasks is a set as the ordering does not matter, and it stores the collection of tasks
+    ///stores the collection of tasks
+    var tasks: Set<ProgramTask>!
     
     //MARK: Registry
     //exists so that a specific issue with decoding doesn't delete all stored data when new global varibles are added

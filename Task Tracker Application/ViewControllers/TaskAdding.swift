@@ -9,7 +9,7 @@ import UIKit
 
 class TaskAdding: UIViewController {
     
-    var initialTask: Task = Task() {
+    var initialTask: ProgramTask = ProgramTask() {
         didSet { reload() }
     }
     
@@ -30,30 +30,26 @@ class TaskAdding: UIViewController {
         //remove all subviews
         view.subviews.forEach { $0.removeFromSuperview() }
         
-        //UI Elements
-        let backButtonAction = UIAction() { _ in
-            
+        //Mostly just UI stuff, would be a storyboard if I was using that.
+        let backButtonAction = UIAction() { [weak self] _ in
             let alertController = UIAlertController(
                 title: "Cancel Adding Task",
                 message: "Are you sure you want to cancel adding a task?\nYour inputs will not be saved.",
                 preferredStyle: .alert
             )
-            
             let leaveAction = UIAlertAction(title: "Leave", style: .destructive) { _ in
                 let next = RootViewController()
                 GlobalState.switchRoot(to: next)
             }
-            
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-            
             alertController.addAction(leaveAction)
             alertController.addAction(cancelAction)
-            
-            self.present(alertController, animated: true, completion: nil)
+            self?.present(alertController, animated: true, completion: nil)
         }
         
-        let btnBack = UIButton(type: .system, primaryAction: backButtonAction)
+        let btnBack = UIButton(type: .system)
         btnBack.translatesAutoresizingMaskIntoConstraints = false
+        btnBack.addAction(backButtonAction, for: .primaryActionTriggered)
         btnBack.setTitle("←", for: .normal)
         btnBack.backgroundColor = GlobalState.shared.foregroundColour.UIColor
         btnBack.tintColor = GlobalState.shared.iconColour.UIColor
@@ -74,18 +70,20 @@ class TaskAdding: UIViewController {
         txtTaskTitleInput.leftViewMode = .always
         txtTaskTitleInput.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
         txtTaskTitleInput.rightViewMode = .always
+        txtTaskTitleInput.addAction(UIAction() { _ in }, for: .editingDidEndOnExit)
         view.addSubview(txtTaskTitleInput)
         
-        let txtTextView = UITextView()
-        txtTextView.translatesAutoresizingMaskIntoConstraints = false
-        txtTextView.font = UIFont.systemFont(ofSize: 16)
-        txtTextView.backgroundColor = GlobalState.shared.foregroundColour.UIColor
-        txtTextView.textColor = GlobalState.shared.textColour.UIColor
-        txtTextView.layer.borderWidth = 1
-        txtTextView.layer.borderColor = GlobalState.shared.borderColour.UIColor.cgColor
-        txtTextView.layer.cornerRadius = 8
-        txtTextView.isScrollEnabled = true
-        view.addSubview(txtTextView)
+        let txtTaskDescriptionInput = UITextView()
+        txtTaskDescriptionInput.text = initialTask.description
+        txtTaskDescriptionInput.translatesAutoresizingMaskIntoConstraints = false
+        txtTaskDescriptionInput.font = UIFont.systemFont(ofSize: 16)
+        txtTaskDescriptionInput.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        txtTaskDescriptionInput.textColor = GlobalState.shared.textColour.UIColor
+        txtTaskDescriptionInput.layer.borderWidth = 1
+        txtTaskDescriptionInput.layer.borderColor = GlobalState.shared.borderColour.UIColor.cgColor
+        txtTaskDescriptionInput.layer.cornerRadius = 8
+        txtTaskDescriptionInput.isScrollEnabled = true
+        view.addSubview(txtTaskDescriptionInput)
         
         let boxCalendar = UIView()
         boxCalendar.translatesAutoresizingMaskIntoConstraints = false
@@ -95,31 +93,47 @@ class TaskAdding: UIViewController {
         
         let boxUpperCalendar = UIView()
         let calCalendarView = UICalendar()
-        let lblSelectedDate = UITextView()
+        let txtSelectedDate = UITextField()
         let btnUpperCalendarBack = UIButton()
         let btnUpperCalendarForward = UIButton()
         let lblUpperCalendarMonthName = UITextView()
         boxUpperCalendar.translatesAutoresizingMaskIntoConstraints = false
         calCalendarView.translatesAutoresizingMaskIntoConstraints = false
-        lblSelectedDate.translatesAutoresizingMaskIntoConstraints = false
+        txtSelectedDate.translatesAutoresizingMaskIntoConstraints = false
         btnUpperCalendarBack.translatesAutoresizingMaskIntoConstraints = false
         btnUpperCalendarForward.translatesAutoresizingMaskIntoConstraints = false
         lblUpperCalendarMonthName.translatesAutoresizingMaskIntoConstraints = false
         
-        let calendarAction = UIAction() { _ in
+        let actCalendarAction = UIAction() { _ in
             calCalendarView.selectedDates.removeAll()
             calCalendarView.selectedDates.insert(calCalendarView.tappedDate)
-            lblSelectedDate.text = "\(calCalendarView.tappedDate)"
+            txtSelectedDate.text = "\(calCalendarView.tappedDate)"
         }
         
-        let calendarBackAction = UIAction() { _ in
+        let actCalendarBackAction = UIAction() { _ in
             calCalendarView.displayedMonthIndex -= 1
             lblUpperCalendarMonthName.text = "\(ProgramDate.monthNames[Int(calCalendarView.displayedMonthIndex % 12)])"
         }
         
-        let calendarForwardAction = UIAction() { _ in
+        let actCalendarForwardAction = UIAction() { _ in
             calCalendarView.displayedMonthIndex += 1
             lblUpperCalendarMonthName.text = "\(ProgramDate.monthNames[Int(calCalendarView.displayedMonthIndex % 12)])"
+        }
+        
+        //validates input according to a regular expression, then converts the input back into a date to select
+        let actCalendarFromTextAction = UIAction() { _ in
+            let regexDateInputValidation: String = "^((0?[1-9]|[1-2][0-9]|3[0-1])\\/(0?[1-9]|1[0-2])\\/[0-9][0-9][0-9][0-9])$"
+            if txtSelectedDate.text?.range(of: regexDateInputValidation, options: .regularExpression) != nil {
+                let DMY = txtSelectedDate.text?.components(separatedBy: "/")
+                let dateVal = ProgramDate(day: (UInt(DMY?[0] ?? "") ?? 1) - 1, month: (UInt(DMY?[1] ?? "") ?? 1) - 1, year: UInt(DMY?[2] ?? "") ?? 1980)
+                
+                calCalendarView.selectedDates.removeAll()
+                calCalendarView.selectedDates.insert(dateVal)
+                calCalendarView.displayedMonthIndex = dateVal.months
+                txtSelectedDate.text = "\(dateVal)"
+            } else {
+                
+            }
         }
         
         calCalendarView.selectedDates = [initialTask.dueDate]
@@ -127,19 +141,20 @@ class TaskAdding: UIViewController {
         calCalendarView.textColor = GlobalState.shared.textColour.UIColor
         calCalendarView.secondaryTextColor = GlobalState.shared.placeholderTextColour.UIColor
         calCalendarView.highlightColor = GlobalState.shared.highlightColour.UIColor
-        calCalendarView.addAction(calendarAction, for: .primaryActionTriggered)
+        calCalendarView.addAction(actCalendarAction, for: .primaryActionTriggered)
         boxCalendar.addSubview(calCalendarView)
         
-        lblSelectedDate.text = "\(initialTask.dueDate)"
-        lblSelectedDate.font = UIFont.systemFont(ofSize: 18, weight: .medium)
-        lblSelectedDate.textAlignment = .center
-        lblSelectedDate.backgroundColor = GlobalState.shared.foregroundColour.UIColor
-        lblSelectedDate.textColor = GlobalState.shared.textColour.UIColor
-        lblSelectedDate.isEditable = false
-        boxCalendar.addSubview(lblSelectedDate)
+        txtSelectedDate.text = "\(initialTask.dueDate)"
+        txtSelectedDate.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        txtSelectedDate.textAlignment = .center
+        txtSelectedDate.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        txtSelectedDate.textColor = GlobalState.shared.textColour.UIColor
+        txtSelectedDate.addAction(actCalendarFromTextAction, for: .editingDidEnd)
+        txtSelectedDate.addAction(UIAction() { _ in }, for: .editingDidEndOnExit)
+        boxCalendar.addSubview(txtSelectedDate)
         
-        btnUpperCalendarBack.addAction(calendarBackAction, for: .primaryActionTriggered)
-        btnUpperCalendarForward.addAction(calendarForwardAction, for: .primaryActionTriggered)
+        btnUpperCalendarBack.addAction(actCalendarBackAction, for: .primaryActionTriggered)
+        btnUpperCalendarForward.addAction(actCalendarForwardAction, for: .primaryActionTriggered)
         btnUpperCalendarBack.setTitle("‹", for: .normal)
         btnUpperCalendarForward.setTitle("›", for: .normal)
         btnUpperCalendarBack.backgroundColor = .clear
@@ -160,22 +175,49 @@ class TaskAdding: UIViewController {
         lblUpperCalendarMonthName.textColor = GlobalState.shared.textColour.UIColor
         lblUpperCalendarMonthName.isEditable = false
         boxUpperCalendar.addSubview(lblUpperCalendarMonthName)
-        
         boxCalendar.addSubview(boxUpperCalendar)
         
+        boxCalendar.backgroundColor = GlobalState.shared.foregroundColour.UIColor
         view.addSubview(boxCalendar)
         
+        let boxPropertiesView = UIView()
         let prpPropertiesView = UIProperties()
+        boxPropertiesView.translatesAutoresizingMaskIntoConstraints = false
         prpPropertiesView.translatesAutoresizingMaskIntoConstraints = false
         prpPropertiesView.properties = initialTask.properties
         prpPropertiesView.iconColor = GlobalState.shared.iconColour.UIColor
         prpPropertiesView.cellBackgroundColor = GlobalState.shared.foregroundColour.UIColor
         prpPropertiesView.cellBorderColor = GlobalState.shared.borderColour.UIColor
         prpPropertiesView.cellBorderWidth = 1
-        prpPropertiesView.cellCornerRadius = 10
+        prpPropertiesView.cellCornerRadius = 8
         prpPropertiesView.textColor = GlobalState.shared.textColour.UIColor
         prpPropertiesView.secondaryTextColor = GlobalState.shared.placeholderTextColour.UIColor
-        view.addSubview(prpPropertiesView)
+        boxPropertiesView.addSubview(prpPropertiesView)
+        
+        boxPropertiesView.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        boxPropertiesView.layer.borderColor = GlobalState.shared.borderColour.UIColor.cgColor
+        boxPropertiesView.layer.borderWidth = 1
+        boxPropertiesView.layer.cornerRadius = 8
+        view.addSubview(boxPropertiesView)
+        
+        let btnAddTask = UIButton()
+        btnAddTask.translatesAutoresizingMaskIntoConstraints = false
+        let actAddTaskAction = UIAction { [weak self] _ in
+            GlobalState.shared.tasks.insert(ProgramTask(dueDate: calCalendarView.selectedDates.first ?? ProgramDate.today, title: txtTaskTitleInput.text ?? "", description: txtTaskDescriptionInput.text, properties: prpPropertiesView.properties))
+            GlobalState.shared.tasks.remove(self?.initialTask ?? ProgramTask())
+            GlobalState.shared.save()
+            let next = RootViewController()
+            GlobalState.switchRoot(to: next)
+        }
+        
+        btnAddTask.addAction(actAddTaskAction, for: .primaryActionTriggered)
+        btnAddTask.setTitle("Add Task", for: .normal)
+        btnAddTask.backgroundColor = GlobalState.shared.foregroundColour.UIColor
+        btnAddTask.tintColor = GlobalState.shared.iconColour.UIColor
+        btnAddTask.layer.cornerRadius = 8
+        btnAddTask.clipsToBounds = true
+        view.addSubview(btnAddTask)
+        
         
         //UI Layout
         NSLayoutConstraint.activate([
@@ -189,14 +231,24 @@ class TaskAdding: UIViewController {
             txtTaskTitleInput.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             txtTaskTitleInput.heightAnchor.constraint(equalToConstant: 50),
             
-            txtTextView.topAnchor.constraint(equalTo: txtTaskTitleInput.bottomAnchor, constant: 20),
-            txtTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            txtTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            txtTextView.heightAnchor.constraint(equalToConstant: 200),
+            txtTaskDescriptionInput.topAnchor.constraint(equalTo: txtTaskTitleInput.bottomAnchor, constant: 20),
+            txtTaskDescriptionInput.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            txtTaskDescriptionInput.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            txtTaskDescriptionInput.heightAnchor.constraint(equalToConstant: 200),
             
-            boxCalendar.topAnchor.constraint(equalTo: txtTextView.bottomAnchor, constant: 20),
+            boxPropertiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            boxPropertiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            boxPropertiesView.topAnchor.constraint(equalTo: txtTaskDescriptionInput.bottomAnchor, constant: 20),
+            boxPropertiesView.heightAnchor.constraint(equalToConstant: 150),
+            
+            prpPropertiesView.leadingAnchor.constraint(equalTo: boxPropertiesView.leadingAnchor, constant: 10),
+            prpPropertiesView.trailingAnchor.constraint(equalTo: boxPropertiesView.trailingAnchor, constant: -10),
+            prpPropertiesView.topAnchor.constraint(equalTo: boxPropertiesView.topAnchor, constant: 10),
+            prpPropertiesView.bottomAnchor.constraint(equalTo: boxPropertiesView.bottomAnchor, constant: -10),
+            
+            boxCalendar.topAnchor.constraint(equalTo: boxPropertiesView.bottomAnchor, constant: 20),
             boxCalendar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            boxCalendar.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.4),
+            boxCalendar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             boxUpperCalendar.topAnchor.constraint(equalTo: boxCalendar.topAnchor),
             boxUpperCalendar.leadingAnchor.constraint(equalTo: boxCalendar.leadingAnchor),
@@ -218,19 +270,19 @@ class TaskAdding: UIViewController {
             calCalendarView.topAnchor.constraint(equalTo: boxUpperCalendar.bottomAnchor),
             calCalendarView.leadingAnchor.constraint(equalTo: boxCalendar.leadingAnchor),
             calCalendarView.trailingAnchor.constraint(equalTo: boxCalendar.trailingAnchor),
-            calCalendarView.heightAnchor.constraint(equalTo: calCalendarView.widthAnchor, multiplier: 0.7),
+            calCalendarView.heightAnchor.constraint(equalTo: calCalendarView.widthAnchor, multiplier: 0.4),
             
-            lblSelectedDate.topAnchor.constraint(equalTo: calCalendarView.bottomAnchor),
-            lblSelectedDate.leadingAnchor.constraint(equalTo: boxCalendar.leadingAnchor),
-            lblSelectedDate.trailingAnchor.constraint(equalTo: boxCalendar.trailingAnchor),
-            lblSelectedDate.heightAnchor.constraint(equalToConstant: 35),
+            txtSelectedDate.topAnchor.constraint(equalTo: calCalendarView.bottomAnchor),
+            txtSelectedDate.leadingAnchor.constraint(equalTo: boxCalendar.leadingAnchor),
+            txtSelectedDate.trailingAnchor.constraint(equalTo: boxCalendar.trailingAnchor),
+            txtSelectedDate.heightAnchor.constraint(equalToConstant: 35),
             
-            boxCalendar.bottomAnchor.constraint(equalTo: lblSelectedDate.bottomAnchor),
+            boxCalendar.bottomAnchor.constraint(equalTo: txtSelectedDate.bottomAnchor),
             
-            prpPropertiesView.leadingAnchor.constraint(equalTo: boxCalendar.trailingAnchor, constant: 20),
-            prpPropertiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            prpPropertiesView.topAnchor.constraint(equalTo: txtTextView.bottomAnchor, constant: 20),
-            prpPropertiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
+            btnAddTask.topAnchor.constraint(equalTo: boxCalendar.bottomAnchor, constant: 20),
+            btnAddTask.widthAnchor.constraint(equalToConstant: 100),
+            btnAddTask.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            btnAddTask.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
 }
