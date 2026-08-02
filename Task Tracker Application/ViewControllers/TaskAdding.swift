@@ -202,9 +202,12 @@ class TaskAdding: UIViewController {
         
         let btnAddTask = UIButton()
         btnAddTask.translatesAutoresizingMaskIntoConstraints = false
+        //adds the task to the list of tasks, removing the previous task unless it hasn't been edited
         let actAddTaskAction = UIAction { [weak self] _ in
-            GlobalState.shared.tasks.insert(ProgramTask(dueDate: calCalendarView.selectedDates.first ?? ProgramDate.today, title: txtTaskTitleInput.text ?? "", description: txtTaskDescriptionInput.text, properties: prpPropertiesView.properties))
+            //remove is before insert to fix bug where tasks would be deleted if not edited
             GlobalState.shared.tasks.remove(self?.initialTask ?? ProgramTask())
+            GlobalState.shared.tasks.insert(ProgramTask(dueDate: calCalendarView.selectedDates.first ?? ProgramDate.today, title: txtTaskTitleInput.text ?? "", description: txtTaskDescriptionInput.text, properties: prpPropertiesView.properties))
+            GlobalState.shared.tasks.remove(ProgramTask())
             GlobalState.shared.save()
             let next = RootViewController()
             GlobalState.switchRoot(to: next)
