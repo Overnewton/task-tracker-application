@@ -130,6 +130,7 @@ class TaskAdding: UIViewController {
                 calCalendarView.selectedDates.removeAll()
                 calCalendarView.selectedDates.insert(dateVal)
                 calCalendarView.displayedMonthIndex = dateVal.months
+                lblUpperCalendarMonthName.text = "\(ProgramDate.monthNames[Int(calCalendarView.displayedMonthIndex % 12)])"
                 txtSelectedDate.text = "\(dateVal)"
             } else {
                 

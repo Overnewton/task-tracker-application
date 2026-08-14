@@ -46,7 +46,7 @@ class RootViewController: UIViewController {
         let funcConfigureCell: (inout UITableViewCell, ProgramTask) -> Void = { cell, task in
             var cellContent = cell.defaultContentConfiguration()
             cellContent.text = task.title
-            cellContent.secondaryText = String(task.description.prefix(50)) + (task.description.count > 50 ? "..." : "")
+            cellContent.secondaryText = String(task.description.prefix(min(20,task.description.distance(from: task.description.startIndex, to: task.description.range(of: "\n")?.lowerBound ?? task.description.endIndex)))) + (task.description.count > min(20,task.description.distance(from: task.description.startIndex, to: task.description.range(of: "\n")?.lowerBound ?? task.description.endIndex)) ? "..." : "")
             cellContent.textProperties.color = GlobalState.shared.textColour.UIColor
             cellContent.secondaryTextProperties.color = GlobalState.shared.placeholderTextColour.UIColor
             cell.contentConfiguration = cellContent
@@ -289,9 +289,9 @@ class RootViewController: UIViewController {
             //Checks if the title matches the filter
             let titleCheck = x.title.lowercased().contains(txtFilter?.text?.lowercased() ?? "") || txtFilter?.text?.isEmpty ?? true
             //Checks if the properties match the properties it should include when filtering
-            let includedPropertiesCheck = (segIncludeMode?.selectedSegmentIndex == 0 ? prpMustInclude?.properties.allSatisfy(x.properties.contains) : prpMustInclude?.properties.contains(where: x.properties.contains)) ?? true || prpMustInclude?.properties.isEmpty ?? true
+            let includedPropertiesCheck = (segIncludeMode?.selectedSegmentIndex == 0 ? prpMustInclude?.properties.map({$0.lowercased()}).allSatisfy(x.properties.map({$0.lowercased()}).contains) : prpMustInclude?.properties.map({$0.lowercased()}).contains(where: x.properties.map({$0.lowercased()}).contains)) ?? true || prpMustInclude?.properties.map({$0.lowercased()}).isEmpty ?? true
             //Checks if the properties do not contain any excluded properties
-            let excludedPropertiesCheck = !(prpMustExclude?.properties.contains(where: x.properties.contains) ?? true) || prpMustExclude?.properties.isEmpty ?? true
+            let excludedPropertiesCheck = !(prpMustExclude?.properties.map({$0.lowercased()}).contains(where: x.properties.map({$0.lowercased()}).contains) ?? true) || prpMustExclude?.properties.map({$0.lowercased()}).isEmpty ?? true
             //Checks if the date is one of the selected dates (if there are no selected dates, it treats it as if every date is selected, for UX reasons)
             let dateCheck = calDateRange?.selectedDates.contains(x.dueDate) ?? true || ((calDateRange?.selectedDates.isEmpty) ?? true)
             
